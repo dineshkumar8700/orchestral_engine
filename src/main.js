@@ -1,11 +1,6 @@
-const readFile = (path) => {
-  const data = Deno.readTextFile(path);
-  return data;
-};
+const readFile = (path) => Deno.readTextFile(path);
 
-const readSerialTask = (filePath) => {
-  return readFile(filePath);
-};
+const readSerialTask = (filePath) =>  readFile(filePath);
 
 const readParallelTask = (filesPath, tasks) => {
   Promise.all(filesPath.map((file) => readFile(file)))
@@ -18,13 +13,10 @@ const readTasks = async (files) => {
   const tasks = [];
 
   for (let index = 0; index < files.length; index++) {
-    const totalFiles = files[index].split(",");
+    const filesPath = files[index].split(",");
 
-    if (totalFiles.length > 1) {
-      readParallelTask(totalFiles, tasks);
-    } else {
-      tasks.push(await readSerialTask(totalFiles[0]));
-    }
+    if (filesPath.length > 1) readParallelTask(filesPath, tasks);
+    else tasks.push(await readSerialTask(filesPath[0]));
   }
 
   return tasks;
