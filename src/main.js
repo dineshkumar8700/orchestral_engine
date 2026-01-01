@@ -3,27 +3,41 @@ const readFile = (path) => {
   return data;
 };
 
-const resolveFileContent = async () => {
-  const files = (await readFile("./files/file_order")).split("\n");
+const readSerialTask = (filePath) => {
+  return readFile(filePath);
+};
+
+const readParallelTask = (filesPath, tasks) => {
+  Promise.all(filesPath.map((file) => readFile(file)))
+    .then((x) => {
+      tasks.push(x);
+    });
+};
+
+const readTasks = async (files) => {
   const tasks = [];
-  try {
-    for (let index = 0; index < files.length; index++) {
-      const totalFiles = files[index].split(",");
-      if (totalFiles.length > 1) {
-        Promise.all(totalFiles.map((file) => readFile(file)))
-          .then((x) => {
-            tasks.push(x);
-          });
-      } else {
-        const task = await readFile(files[index]);
-        tasks.push(task);
-      }
+
+  for (let index = 0; index < files.length; index++) {
+    const totalFiles = files[index].split(",");
+
+    if (totalFiles.length > 1) {
+      readParallelTask(totalFiles, tasks);
+    } else {
+      tasks.push(await readSerialTask(totalFiles[0]));
     }
-  } catch (err) {
-    console.log(err);
   }
 
+  return tasks;
+};
+
+const resolveFileContent = async () => {
+  const files = (await readFile("./files/file_order")).split("\n");
+  return readTasks(files);
+};
+
+const main = async () => {
+  const tasks = await resolveFileContent();
   console.log(tasks);
 };
 
-resolveFileContent();
+main();
