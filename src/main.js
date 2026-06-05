@@ -1,12 +1,10 @@
 const readFile = (path) => Deno.readTextFile(path);
 
-const readSerialTask = (filePath) =>  readFile(filePath);
+const readSerialTask = (filePath) => readFile(filePath);
 
 const readParallelTask = (filesPath, tasks) => {
   Promise.all(filesPath.map((file) => readFile(file)))
-    .then((x) => {
-      tasks.push(x);
-    });
+    .then((x) => tasks.push(x));
 };
 
 const readTasks = async (files) => {
